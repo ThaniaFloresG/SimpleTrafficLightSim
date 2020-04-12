@@ -1,0 +1,61 @@
+module user_logic(pix_clk, clk_5hz,rst, squares,color);
+ input pix_clk, clk_5hz, rst;
+ output reg [2:0] color; // R: 100, Y: 110: B:000 G:010
+ output reg [2:0] squares; // squares[0] for red sign, [1] for yellow sign, [2] for green sign
+
+reg [2:0]state_switch;
+reg [10:0] counter;
+
+parameter Rsign = 0,Ysign = 1,Gsign = 2;
+
+always @(posedge clk_5hz) // set up a counter with 5hz as its clk
+ begin
+  if (rst)
+ 	counter = 0;
+  else if (counter == 101)
+ 	counter = 0;
+  else
+ 	counter = counter + 1;
+ end
+
+always @(posedge pix_clk) // set up transitions, using pix_clk
+ begin
+  case (state_switch)
+        	0:
+        	if (counter ==  40) // 40 * 0.2s for Rsign
+     	state_switch = 1;
+                	else
+     	state_switch = 0;
+        	1:
+       	if (counter == 60) // 20  * 0.2s for Ysign
+                     	state_switch = 2;
+                	else
+                     	state_switch = 1;
+        	2:
+              	if (counter == 100 ) // 50 * 0.2s for Gsign
+                     	state_switch = 0;
+                	else
+                     	state_switch = 2;
+       	 
+      	//  default: state_switch = 0;
+
+  endcase
+ end
+
+always @(state_switch) // define outputs
+ begin
+  case (state_switch)
+         	0: begin color = 3'b100;
+   		 	squares = 3'b001; end
+
+         	1: begin color = 3'b110;
+          	squares = 3'b010; end
+
+         	2: begin color = 3'b010;
+   			  squares = 3'b100; end
+         	//default: begin color = 3'b000;
+   			  //squares = 3'b000; end // can be black color
+
+   endcase
+ end
+Endmodule
