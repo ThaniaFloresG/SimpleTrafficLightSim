@@ -1,0 +1,21 @@
+module Final(clk,up,down,R,G,B,Hsync,Vsync,Px_clk,Blank,rst);
+input clk,rst;
+input up,down;
+output[9:0]R,G,B;
+output Hsync,Vsync,Px_clk,Blank;
+wire red_out,green_out,blue_out;
+wire[10:0]pixel_row;
+wire[10:0]pixel_col;
+wire[2:0]color;
+wire[3:0]squares;
+wire clk_w;
+
+clock_divide_module(clk, clk_Out);
+
+user_logic(Px_clk,clk_Out,rst,squares,color); //user_logic(pix_clk, clk_5hz,rst, squares,color);
+
+vga_logic(squares,color,pixel_row,pixel_col,red_out,green_out,blue_out); //vga_logic(squares, color, pixel_row, pixel_col, red, green, blue);
+
+vga_sync(clk,red_out,green_out,blue_out,R,G,B,Hsync,Vsync,Blank,Px_clk,pixel_row,pixel_col); //vga_sync(clock_50Mhz, red, green, blue, red_out, green_out, blue_out, horiz_sync_out, vert_sync_out, video_on, pixel_clock, pixel_row, pixel_column);
+
+endmodule
